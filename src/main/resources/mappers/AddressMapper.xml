@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"      
+ "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+<mapper namespace="cn.tedu.store.mapper.AddressMapper">
+	
+	<!-- 插入新的用戶地址數據 -->
+	<!-- Integer addnew(Address address) -->
+	<insert id="addnew" useGeneratedKeys="true" keyProperty="id">
+		insert into t_address (
+			id,uid,name,
+			province,city,area,
+			district,zip,address,
+			phone,tel,tag,
+			is_default,created_user,created_time,
+			modified_user,modified_time
+		) values (
+			#{id},#{uid},#{name},
+			#{province},#{city},#{area},
+			#{district},#{zip},#{address},
+			#{phone},#{tel},#{tag},
+			#{isDefault},#{createdUser},#{createdTime},
+			#{modifiedUser},#{modifiedTime}
+		)
+	</insert>
+	
+	<!-- 將當前用戶的收貨地址全部設置為非默認 -->
+	<!-- Integer updateNonDefault(Integer uid) -->
+	<update id="updateNonDefault">
+		update
+			t_address
+		set
+			is_default=0
+		where 
+			uid=#{uid}
+	</update>
+	
+	<!-- 將指定id的收貨地址設置為默認 -->
+	<!-- Integer updateDefault(Integer id) -->
+	<update id="updateDefault">
+		update
+			t_address
+		set
+			is_default=1
+		where
+			id=#{id}
+	</update>
+	
+	<!-- 根據用戶id獲取用戶地址的數量 -->
+	<!-- Integer getCountByUid(Integer uid) -->
+	<select id="getCountByUid" resultType="java.lang.Integer">
+		select
+			COUNT(id) 
+		from 
+			t_address 
+		where 
+			uid=#{uid}
+	</select>
+	
+	<!-- 獲取當前用戶的收貨地址列表 -->
+	<!-- List<Address> findByUid(Integer uid) -->
+	<select id="findByUid" resultType="cn.tedu.store.entity.Address">
+		select 
+			id, name, 
+			phone, district, 
+			address, tag, 
+			is_default as isDefault
+		from 
+			t_address
+		where 
+			uid=#{uid}
+		order by 
+			is_default desc,
+			modified_time desc
+	</select>
+	
+	<!-- 根據id查詢收貨地址數據 -->
+	<!-- Address findById(Integer id) -->
+	<select id="findById" resultType="cn.tedu.store.entity.Address">
+		select 
+			uid,name,phone,
+			district,address,
+			is_default as isDefault
+		from 
+			t_address
+		where 
+			id=#{id}
+	</select>
+	
+	<!-- 查找當前用戶最後修改的收貨地址信息 -->
+	<!-- Address findLastModified(Integer uid) -->
+	<select id="findLastModified" resultType="cn.tedu.store.entity.Address">
+		select 
+			id 
+		from 
+			t_address 
+		where 
+			uid=#{uid}
+		order by 
+			modified_time DESC 
+		limit 
+			0,1
+	</select>
+	
+	<!-- 根據id刪除收貨地址數據 -->
+	<!--Integer deleteById(Integer id) -->
+	<delete id="deleteById">
+		delete from t_address where id=#{id}
+	</delete>
+</mapper>

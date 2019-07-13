@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"      
+ "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+<mapper namespace="cn.tedu.store.mapper.CartMapper">
+	
+	<!-- 新增購物車數據 -->
+	<!-- Integer addnew(Cart cart) -->
+	<insert id="addnew" useGeneratedKeys="true" keyProperty="id">
+		insert into t_cart (
+			uid,gid,
+			price,count,
+			created_user,created_time,
+			modified_user,modified_time
+		) values (
+			#{uid},#{gid},
+			#{price},#{count},
+			#{createdUser},#{createdTime},
+			#{modifiedUser},#{modifiedTime}
+		)
+	</insert>
+	
+	<!-- 更新購物車中商品的數量 -->
+	<!-- Integer updateCount(@Param("id") Integer id, @Param("count") Integer count) -->
+	<update id="updateCount">
+		update
+			t_cart
+		set
+			count=#{count}
+		where
+			id=#{id}
+	</update>
+	
+	<!-- 根據用戶id和商品id查詢購物車數據 -->
+	<!-- Cart findByUidAndGid(@Param("uid") Integer uid, @Param("goodsId") Long goodsId) -->
+	<select id="findByUidAndGid" resultType="cn.tedu.store.entity.Cart">
+		select
+			id,count
+		from
+			t_cart
+		where
+			gid=#{goodsId} and uid=#{uid}
+	</select>
+	
+	<!-- 根據id獲取購物車數據 -->
+	<!-- Cart findById(Integer id) -->
+	<select id="findById" resultType="cn.tedu.store.entity.Cart">
+		select
+			uid,count
+		from
+			t_cart
+		where
+			id=#{id}
+	</select>
+	
+	<!-- 根據用戶id查詢當前用戶的購物車數據列表-->
+	<!-- List<CartVO> findByUid(Integer uid) -->
+	<select id="findByUid" resultType="cn.tedu.store.vo.CartVO">
+		select 
+			t_cart.id, 
+			uid,gid, 
+			t_cart.price as oldPrice,count, 
+			t_goods.price as newPrice,
+			title,image
+		from 
+			t_cart 
+		inner join
+			t_goods
+		on
+			t_cart.gid =t_goods.id
+		where 
+			uid=#{uid}
+		order by 
+			id desc
+	</select>
+	
+	<!-- 根據若干id查詢匹配的購物車數據的集合-->
+	<!-- List<CartVO> findByIds(Integer[] ids) -->
+	<select id="findByIds" resultType="cn.tedu.store.vo.CartVO">
+		select 
+			t_cart.id, 
+			uid,gid, 
+			t_cart.price as oldPrice, count, 
+			t_goods.price as newPrice,
+			title,image
+		from 
+			t_cart 
+		inner join
+			t_goods
+		on
+			t_cart.gid =t_goods.id
+		where 
+			t_cart.id IN
+				<foreach collection="array" item="id" 
+						 separator="," open="(" close=")">
+					#{id}
+				</foreach>
+		order by 
+			t_cart.id desc
+	</select>
+	
+</mapper>
